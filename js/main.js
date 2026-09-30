@@ -6,6 +6,44 @@
 
   document.documentElement.classList.add("js");
 
+  /* ---------- Yorug' / qorong'u rejim ---------- */
+  var root = document.documentElement;
+  var themeToggle = document.querySelector(".theme-toggle");
+  var THEME_KEY = "aberno-theme";
+
+  function savedTheme() {
+    try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; }
+  }
+
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeToggle) {
+      var dark = theme === "dark";
+      themeToggle.setAttribute("aria-pressed", String(dark));
+      themeToggle.setAttribute("aria-label", dark ? "Yorug‘ rejimga o‘tish" : "Qorong‘u rejimga o‘tish");
+    }
+  }
+
+  applyTheme(root.getAttribute("data-theme") === "dark" ? "dark" : "light");
+
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* saqlab bo'lmasa ham ishlayveradi */ }
+    });
+  }
+
+  // Foydalanuvchi o'zi tanlamagan bo'lsa, tizim sozlamasiga ergashamiz
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    var onSystemChange = function (e) {
+      if (!savedTheme()) applyTheme(e.matches ? "dark" : "light");
+    };
+    if (mq.addEventListener) mq.addEventListener("change", onSystemChange);
+    else if (mq.addListener) mq.addListener(onSystemChange);
+  }
+
   /* ---------- Mobil menyu ---------- */
   var burger = document.querySelector(".burger");
   var nav = document.querySelector(".nav");
